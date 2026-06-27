@@ -12,8 +12,6 @@ mongoose.connect('mongodb://localhost:27016/portfolio_ucsc', {
 }).then(() => console.log('Conectado exitosamente a MongoDB'))
   .catch(err => console.error('Error de conexión:', err));
 
-
-
 const IntegranteSchema = new mongoose.Schema({
     nombre: String,
     rol: String,

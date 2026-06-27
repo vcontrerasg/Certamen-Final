@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio Grupal Interactivo</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">UCSC Grupo</div>
+            <ul>
+                <li><a href="#sobre-mi">Integrantes</a></li>
+                <li><a href="#proyectos">Proyectos</a></li>
+                <li><a href="#minijuego">Minijuego</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <button id="dark-mode-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="sobre-mi">
+            <h2>Sobre Nosotros</h2>
+            <div id="contenedor-integrantes" class="grid-integrantes">
+                </div>
+        </section>
+
+        <section id="multimedia">
+            <h2>Video de Presentación</h2>
+            <div class="video-container">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="audio-control">
+                <p>Música de fondo ambiente:</p>
+                <button id="btn-musica">🎵 Play / Pausa</button>
+                <audio id="musica-fondo" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+            </div>
+        </section>
+
+        <section id="proyectos">
+            <h2>Nuestros Proyectos</h2>
+            <div class="filtros">
+                <button onclick="cargarProyectos()">Todos</button>
+                <button onclick="cargarProyectos('Node.js')">Node.js</button>
+                <button onclick="cargarProyectos('React')">React</button>
+            </div>
+            <div id="contenedor-proyectos" class="grid-proyectos">
+                </div>
+        </section>
+
+        <section id="minijuego">
+            <h2>Minijuego: Adivina el Número Secreto</h2>
+            <p>Hemos pensado un número entre 1 y 20. ¿Puedes adivinarlo?</p>
+            <div class="juego-box">
+                <input type="number" id="input-adivina" min="1" max="20">
+                <button id="btn-adivina">Probar</button>
+                <p id="feedback-juego">Intentos: 0</p>
+            </div>
+        </section>
+
+        <section id="contacto">
+            <h2>Contacto</h2>
+            <form id="form-contacto">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" required>
+
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" required>
+
+                <label for="tipo">Tipo de Consulta:</label>
+                <select id="tipo" required>
+                    <option value="Sugerencia">Sugerencia</option>
+                    <option value="Trabajo">Contratación</option>
+                    <option value="Otros">Otros</option>
+                </select>
+
+                <label for="mensaje">Mensaje:</label>
+                <textarea id="mensaje" required></textarea>
+
+                <button type="submit">Enviar Mensaje</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 - Desarrollado en conjunto para UCSC. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

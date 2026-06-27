@@ -1,305 +1,112 @@
-window.Game = (function() {
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 
-  let currentScreen = "title";
-  let currentZone   = "terminal";
+const app = express();
+app.use(express.json());
+app.use(cors()); // Permite que el Frontend se conecte al Backend
 
-  function showScreen(id) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    const el = document.getElementById("screen-" + id);
-    if (el) el.classList.add("active");
-    currentScreen = id;
-  }
+// 1. CONEXIÓN A MONGO DB
+mongoose.connect('mongodb://localhost:27016/portfolio_ucsc', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log('Conectado exitosamente a MongoDB'))
+  .catch(err => console.error('Error de conexión:', err));
 
-  function init() {
-    Audio.init();
-    Controls.init();
-    bindTitleButtons();
-    bindGameOverButtons();
-    showScreen("title");
-    Audio.playBGM("title");
+// 2. MODELOS DE DATOS (Mongoose)
+// Colección 1: Integrantes
+const IntegranteSchema = new mongoose.Schema({
+    nombre: String,
+    rol: String,
+    sobreMi: String,
+    habilidades: [String]
+});
+const Integrante = mongoose.model('Integrante', IntegranteSchema);
 
-    document.addEventListener("keydown", (e) => {
-      if (currentScreen === "title" && (e.key === "Enter" || e.key === "z" || e.key === "Z")) startGame();
-    });
-  }
+// Colección 2: Proyectos (Relacionada con Integrantes)
+const ProyectoSchema = new mongoose.Schema({
+    titulo: String,
+    descripcion: String,
+    tecnologias: [String],
+    urlGithub: String,
+    autor: { type: mongoose.Schema.Types.ObjectId, ref: 'Integrante' } // Relación ObjectId
+});
+const Proyecto = mongoose.model('Proyecto', ProyectoSchema);
 
-  function bindTitleButtons() {
-    document.getElementById("btn-start").onclick    = () => { Audio.playConfirm(); startGame(); };
-    document.getElementById("btn-controls").onclick = () => {
-      Audio.playMenuOpen();
-      Controls.renderControlsUI();
-      showScreen("controls");
-    };
-    document.getElementById("btn-controls-back").onclick = () => {
-      Audio.playCancel();
-      Controls.updateHints();
-      showScreen("title");
-    };
-    document.getElementById("btn-credits").onclick      = () => { Audio.playMenuOpen(); showScreen("credits"); };
-    document.getElementById("btn-credits-back").onclick = () => { Audio.playCancel(); showScreen("title"); };
-  }
+// Colección 3: Contacto / Mensajes
+const MensajeSchema = new mongoose.Schema({
+    nombre: String,
+    correo: String,
+    tipoConsulta: String,
+    mensaje: String,
+    fecha: { type: Date, default: Date.now }
+});
+const Mensaje = mongoose.model('Mensaje', MensajeSchema);
 
-  function bindGameOverButtons() {
-    document.getElementById("btn-retry").onclick         = () => { Audio.playConfirm(); startGame(); };
-    document.getElementById("btn-title").onclick         = () => { World.stop(); Audio.playBGM("title"); showScreen("title"); };
-    document.getElementById("btn-victory-title").onclick = () => { World.stop(); Audio.playBGM("title"); showScreen("title"); };
-  }
 
-  function startGame() {
-    CONFIG.PLAYER.hp    = CONFIG.PLAYER.maxHp;
-    CONFIG.PLAYER.score = 0;
-    CONFIG.PLAYER.atk   = 10;
-    CONFIG.PLAYER.def   = 5;
-    currentZone = "terminal";
+// 3. RUTAS Y CONTROLADORES (CRUD & Consultas Requeridas)
 
-    window.PROGRESS = Object.assign({}, CONFIG.PROGRESS_DEFAULTS);
+// --- CRUD INTEGRANTES ---
+app.post('/api/integrantes', async (req, res) => {
+    try { const nuevo = new Integrante(req.body); await nuevo.save(); res.status(201).json(nuevo); } 
+    catch (err) { res.status(500).json({ error: err.message }); }
+});
 
-    showScreen("world");
-    Audio.playBGM("terminal");
+app.get('/api/integrantes', async (req, res) => {
+    // Uso de find() solicitado en la rúbrica
+    const lista = await Integrante.find();
+    res.json(lista);
+});
 
-    World.init(currentZone, {
-      onDialogue:   handleDialogue,
-      onBattle:     handleBattle,
-      onZoneChange: handleZoneChange,
-      onSign:       handleSign
-    });
+// --- CRUD PROYECTOS ---
+app.post('/api/proyectos', async (req, res) => {
+    try { const nuevo = new Proyecto(req.body); await nuevo.save(); res.status(201).json(nuevo); } 
+    catch (err) { res.status(500).json({ error: err.message }); }
+});
 
-    setTimeout(() => {
-      World.stop();
-      handleDialogue([
-        {
-          speaker: "ByteOS 4.2",
-          portrait: null,
-          emotion: "normal",
-          text: "Iniciando sesion...\nBienvenido, Usuario.\nAcceso concedido: Nivel basico.\n\nEste sistema esta en crisis.\nNecesitamos tu ayuda."
-        },
-        {
-          speaker: "ByteOS 4.2",
-          portrait: null,
-          emotion: "triste",
-          text: "Un proceso llamado NULLPOINTER esta\ncorrompiendo el nucleo desde hace 72 horas.\n\nHabla con los residentes de esta zona.\nEllos te explicaran que hacer.\n\n(Usa Z o Enter para interactuar)"
-        }
-      ]);
-    }, 400);
-  }
+// Consulta con Filtro, Sort y Populate (Garantiza requerimientos de rúbricas)
+app.get('/api/proyectos', async (req, res) => {
+    try {
+        const { tech } = req.query;
+        let filtro = {};
+        
+        // Filtro con operadores si se solicita una tecnología específica
+        if (tech) { filtro.tecnologias = { $in: [tech] }; }
 
-  function handleDialogue(lines) {
-    showScreen("dialogue");
-    document.getElementById("screen-world").style.display = "flex";
-    Dialogue.show(lines, () => {
-      document.getElementById("screen-world").style.display = "";
-      showScreen("world");
-      World.resume();
-    });
-  }
+        // find() + sort() alfabético por título
+        const proyectos = await Proyecto.find(filtro)
+                                        .populate('autor')
+                                        .sort({ titulo: 1 }); 
+        res.json(proyectos);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
-  function handleSign(text) {
-    Audio.playSign();
-    handleDialogue([{ speaker: "* ", portrait: null, emotion: "normal", text }]);
-  }
+app.put('/api/proyectos/:id', async (req, res) => {
+    const actualizado = await Proyecto.findByIdAndUpdate(req.body._id || req.params.id, req.body, { new: true });
+    res.json(actualizado);
+});
 
-  function handleBattle(enemyCfg, enemyObj, key, onDefeated) {
-    const isBoss = enemyCfg.isBoss || false;
+app.delete('/api/proyectos/:id', async (req, res) => {
+    await Proyecto.findByIdAndDelete(req.params.id);
+    res.json({ mensaje: "Proyecto eliminado con éxito" });
+});
 
-    if (isBoss) {
-      const introLines = [
-        {
-          speaker: "SISTEMA",
-          portrait: null,
-          emotion: "triste",
-          text: "ALERTA MAXIMA\nEl Profesor localizado en el núcleo\nIniciando protocolo de emergencia...\nNivel de amenaza: ACADEMICO CRITICO"
-        },
-        {
-          speaker: "EL PROFESOR",
-          portrait: "img/profesor_fase1.png",
-          emotion: "normal",
-          text: "...¿IA? ¿En mi asignatura?\n\nLlevo años enseñando esto.\nY así me pagan.\n\nVamos a ver qué saben realmente."
-        },
-        {
-          speaker: "EL PROFESOR",
-          portrait: "img/profesor_fase1.png",
-          emotion: "triste",
-          text: "No se pueden usar herramientas de IA\nsin entender lo que hacen.\nEso no es aprender. Eso es engañarse.\n\n...EVALUACION INICIADA"
-        }
-      ];
+// --- CRUD MENSAJES (Formulario) ---
+app.post('/api/mensajes', async (req, res) => {
+    try { const nuevo = new Mensaje(req.body); await nuevo.save(); res.status(201).json(nuevo); } 
+    catch (err) { res.status(500).json({ error: err.message }); }
+});
 
-      showScreen("dialogue");
-      document.getElementById("screen-world").style.display = "flex";
-      Audio.stopBGM(0.8);
-      setTimeout(() => Audio.playBossStart(), 200);
-      Dialogue.show(introLines, () => {
-        document.getElementById("screen-world").style.display = "";
-        showScreen("battle");
-        Audio.playBGM("battle_boss");
-        startBattle(enemyCfg, enemyObj, key, onDefeated);
-      });
-    } else {
-      showScreen("battle");
-      Audio.playBattleStart();
-      setTimeout(() => {
-        const zoneBattleMusic = {
-          terminal:         "battle_normal",
-          ram_district:     "battle_ram",
-          firewall:         "battle_firewall",
-          servidor_central: "battle_servidor"
-        };
-        Audio.playBGM(zoneBattleMusic[currentZone] || "battle_normal");
-      }, 600);
-      startBattle(enemyCfg, enemyObj, key, onDefeated);
-    }
-  }
+// --- CONSULTA AVANZADA AGGREGATE ---
+// Cuenta cuántos proyectos tiene asignados cada integrante
+app.get('/api/reporte-proyectos', async (req, res) => {
+    try {
+        const reporte = await Proyecto.aggregate([
+            { $group: { _id: "$autor", totalProyectos: { $sum: 1 } } }
+        ]);
+        res.json(reporte);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
-  function startBattle(enemyCfg, enemyObj, key, onDefeated) {
-    Battle.start(enemyObj, {
-      onEnd: (result) => {
-        if (result === "defeat") return;
-        if (onDefeated) onDefeated();
-
-        const isBoss = enemyObj.isBoss || enemyCfg.isBoss;
-        if (isBoss) {
-          handleBossVictory(result);
-        } else {
-          handleEnemyVictory(enemyCfg, result);
-        }
-      },
-      onDefeat: () => showGameOver()
-    });
-  }
-
-  function handleEnemyVictory(enemyCfg, result) {
-    const scoreGained = result === "mercy"
-      ? Math.floor((enemyCfg.score || 0) * 0.7)
-      : (enemyCfg.score || 0);
-
-    CONFIG.PLAYER.score += scoreGained;
-
-    if (result === "mercy") {
-      Audio.playMercy();
-    } else {
-      Audio.playDefeat();
-    }
-
-    const speaker = result === "mercy" ? "REPARADO" : "DERROTA ENEMIGA";
-    const txt = result === "mercy"
-      ? `${enemyCfg.name} fue reparado y reintegrado.\n+${scoreGained} puntos`
-      : `${enemyCfg.name} eliminado del sistema.\n+${scoreGained} puntos\nTotal: ${CONFIG.PLAYER.score} pts`;
-
-    showScreen("dialogue");
-    document.getElementById("screen-world").style.display = "flex";
-    Dialogue.show([{ speaker, portrait: null, emotion: "normal", text: txt }], () => {
-      document.getElementById("screen-world").style.display = "";
-      showScreen("world");
-      // Restaurar BGM de la zona DESPUÉS de cerrar el diálogo
-      Audio.playBGM(currentZone);
-      World.resume();
-    });
-  }
-
-  function handleBossVictory(result) {
-    window.PROGRESS.bossDefeated = true;
-    Audio.stopBGM(0.5);
-    setTimeout(() => Audio.playVictory(), 300);
-
-    const victoryLines = [
-      {
-        speaker: "SISTEMA",
-        portrait: null,
-        emotion: "feliz",
-        text: "Proceso crítico: DETENIDO\nLimpiando registros académicos...\nRestaurando integridad del sistema...\nProgreso: ████████████ 100%"
-      },
-      {
-        speaker: "Victor",
-        portrait: CONFIG.CHARACTERS.victor.portraits.feliz,
-        emotion: "feliz",
-        text: "¡Lo lograste! ¡El código vuelve a compilar correctamente!\n\nNunca había visto un proceso tan resiliente.\n¡BYTELAND está a salvo!"
-      },
-      {
-        speaker: "Fabian",
-        portrait: CONFIG.CHARACTERS.fabian.portraits.feliz,
-        emotion: "feliz",
-        text: "Mis herramientas de debugging nunca habían detectado cero errores...\n\n¡Hasta ahora! Error count: 0.\nPor primera vez en 72 horas."
-      },
-      {
-        speaker: "Sebastian",
-        portrait: CONFIG.CHARACTERS.seba.portraits.feliz,
-        emotion: "feliz",
-        text: "Acceso root: RESTAURADO.\nSistema: LIMPIO.\nIntegridad: 100%.\n\n...Gracias.\nDe verdad."
-      }
-    ];
-
-    if (result === "mercy") {
-      victoryLines.push({
-        speaker: "EL PROFESOR",
-        portrait: "img/profesor_perdon.png",
-        emotion: "feliz",
-        text: "...\n\nEsperé que alguien me pidiera disculpas\nde verdad. Que entendiera por qué importa.\n\nUsar IA no está mal si se hace con honestidad.\nLo que no acepto es el engaño."
-      });
-      victoryLines.push({
-        speaker: "EL PROFESOR",
-        portrait: "img/profesor_perdon.png",
-        emotion: "feliz",
-        text: "Esta vez... los perdono.\n\nPero la próxima vez que usen IA,\nquiero que me lo digan. Y que me expliquen\nqué aprendieron de verdad.\n\n¿Trato?"
-      });
-    }
-
-    showScreen("dialogue");
-    document.getElementById("screen-world").style.display = "flex";
-    Dialogue.show(victoryLines, () => {
-      document.getElementById("screen-world").style.display = "";
-      showVictory(result);
-    });
-  }
-
-  function handleZoneChange(newZoneId) {
-    const newZone = CONFIG.ZONES.find(z => z.id === newZoneId);
-    Audio.playZoneTransition();
-
-    const transLines = [
-      {
-        speaker: "SISTEMA",
-        portrait: null,
-        emotion: "normal",
-        text: `Accediendo: /${newZoneId.replace(/_/g, "/")}\nCargando: ${newZone ? newZone.name : newZoneId}...\nAcceso concedido.\nPreparando entorno...`
-      }
-    ];
-
-    const idx = CONFIG.ZONES.findIndex(z => z.id === newZoneId);
-    if (idx >= 1) window.PROGRESS[`zone${idx + 1}Unlocked`] = true;
-
-    showScreen("dialogue");
-    document.getElementById("screen-world").style.display = "flex";
-    Dialogue.show(transLines, () => {
-      document.getElementById("screen-world").style.display = "";
-      currentZone = newZoneId;
-      showScreen("world");
-      World.loadZone(newZoneId);
-      World.resume();
-      Audio.playBGM(newZoneId);
-    });
-  }
-
-  function showGameOver() {
-    World.stop();
-    Audio.playDeath();
-    setTimeout(() => Audio.playBGM("gameover"), 800);
-    document.getElementById("gameover-score").textContent = CONFIG.PLAYER.score;
-    document.getElementById("gameover-msg").textContent =
-      "El Profesor te ha reprobado.\nTu proceso fue terminado.\n\nPero el código siempre puede ser reescrito.";
-    showScreen("gameover");
-  }
-
-  function showVictory(result) {
-    World.stop();
-    setTimeout(() => Audio.playBGM("victory"), 500);
-    document.getElementById("victory-score").textContent = CONFIG.PLAYER.score;
-    document.getElementById("victory-msg").textContent = result === "mercy"
-      ? "¡El Profesor los ha perdonado!\nEl código vuelve a fluir limpio.\n\nRecuerda: la honestidad es el mejor algoritmo."
-      : "¡BYTELAND ha sido liberado!\nEl código vuelve a fluir limpio.\n\nGracias, Usuario.";
-    showScreen("victory");
-  }
-
-  return { init };
-
-})();
-
-document.addEventListener("DOMContentLoaded", () => Game.init());
+// Iniciar servidor
+app.listen(3000, () => console.log('Servidor Backend corriendo en http://localhost:3000'));

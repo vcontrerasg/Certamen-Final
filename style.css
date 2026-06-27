@@ -56,6 +56,7 @@ main {
 
 section { margin-bottom: 60px; }
 
+/* Grids Responsivos */
 .grid-integrantes, .grid-proyectos {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -79,6 +80,7 @@ section { margin-bottom: 60px; }
     margin-right: 5px;
 }
 
+/* Formularios */
 form {
     display: flex;
     flex-direction: column;
@@ -104,6 +106,7 @@ button {
 }
 
 button:hover { transform: scale(1.02); }
+/* === MEJORAS DE TARJETAS DE PROYECTO === */
 .card-proyecto {
     display: flex;
     flex-direction: column;
@@ -157,6 +160,7 @@ button:hover { transform: scale(1.02); }
     background-color: #28a745;
 }
 
+/* Filtros de proyectos */
 .filtros {
     display: flex;
     gap: 10px;
@@ -169,6 +173,7 @@ button:hover { transform: scale(1.02); }
     font-size: 0.85rem;
 }
 
+/* === BYTELAND IFRAME === */
 .iframe-box {
     display: flex;
     flex-direction: column;

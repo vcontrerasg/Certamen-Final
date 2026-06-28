@@ -1,6 +1,5 @@
 const API_URL = 'http://localhost:3000/api';
 
-// Proyectos del grupo (datos locales como fallback)
 const PROYECTOS_LOCALES = [
     {
         titulo: "BYTELAND — El Mundo de los Bits",
@@ -31,7 +30,6 @@ const PROYECTOS_LOCALES = [
     }
 ];
 
-// Integrantes del grupo (datos locales como fallback)
 const INTEGRANTES_LOCALES = [
     {
         nombre: "Víctor Ignacio Contreras Guilloux",
@@ -71,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarFormulario();
 });
 
-// Pantalla completa para el iframe de BYTELAND
 function toggleFullscreenGame() {
     const iframe = document.getElementById('byteland-iframe');
     if (iframe.requestFullscreen) iframe.requestFullscreen();
@@ -79,7 +76,6 @@ function toggleFullscreenGame() {
     else if (iframe.mozRequestFullScreen) iframe.mozRequestFullScreen();
 }
 
-// 1. CARGAR INTEGRANTES DESDE MONGODB
 async function cargarIntegrantes() {
     try {
         const res = await fetch(`${API_URL}/integrantes`, { signal: AbortSignal.timeout(3000) });
@@ -126,7 +122,6 @@ function renderizarIntegrantes(integrantes, esLocal = false) {
     });
 }
 
-// 2. CARGAR PROYECTOS (API o datos locales como fallback)
 async function cargarProyectos(tecnologia = '') {
     const contenedor = document.getElementById('contenedor-proyectos');
     contenedor.innerHTML = '<p style="opacity:0.5; padding: 10px;">Cargando proyectos...</p>';
@@ -180,9 +175,7 @@ function renderizarProyectos(proyectos) {
     });
 }
 
-// 3. (BYTELAND es el minijuego - ver sección #minijuego del HTML)
 
-// 4. MÚSICA
 function inicializarMúsica() {
     const musica = document.getElementById('musica-fondo');
     const btnMusica = document.getElementById('btn-musica');
@@ -198,7 +191,6 @@ function inicializarMúsica() {
     });
 }
 
-// 5. MODO OSCURO
 function inicializarDarkMode() {
     const toggle = document.getElementById('dark-mode-toggle');
 
@@ -212,7 +204,6 @@ function inicializarDarkMode() {
     });
 }
 
-// 6. FORMULARIO DE CONTACTO
 function inicializarFormulario() {
     const form = document.getElementById('form-contacto');
     form.addEventListener('submit', async (e) => {

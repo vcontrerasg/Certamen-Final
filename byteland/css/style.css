@@ -1,10 +1,5 @@
-/* ═══════════════════════════════════════
-   BYTELAND — CSS  (Undertale Aesthetic)
-═══════════════════════════════════════ */
-
 @import url('https://fonts.googleapis.com/css2?family=Determination+Mono&display=swap');
 
-/* ─── Variables (Undertale palette) ─── */
 :root {
   --bg:         #000000;
   --panel:      #000000;
@@ -28,7 +23,6 @@
   --shadow2:    none;
 }
 
-/* ─── Reset & Base ──────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -43,7 +37,6 @@ html, body {
   cursor: default;
 }
 
-/* ─── Screen System ─────────────────── */
 .screen {
   position: fixed;
   inset: 0;
@@ -54,7 +47,6 @@ html, body {
 }
 .screen.active { display: flex; }
 
-/* ─── TITLE SCREEN ──────────────────── */
 .title-bg {
   width: 100%; height: 100%;
   background: #000;
@@ -65,7 +57,6 @@ html, body {
   overflow: hidden;
 }
 
-/* Subtle scanlines like Undertale */
 .scanlines {
   position: absolute;
   inset: 0;
@@ -177,7 +168,6 @@ kbd {
   color: #fff;
 }
 
-/* ─── Panel Window ──────────────────── */
 .panel-window {
   background: #000;
   border: 3px solid #fff;
@@ -201,7 +191,6 @@ kbd {
   letter-spacing: 2px;
 }
 
-/* ─── Controls Screen ───────────────── */
 .controls-grid {
   width: 100%;
   display: grid;
@@ -249,7 +238,6 @@ kbd {
   text-align: center;
 }
 
-/* ─── Credits ───────────────────────── */
 .credits-content {
   font-family: var(--pixel);
   font-size: 10px;
@@ -261,7 +249,6 @@ kbd {
 .credits-content h4 { color: #fff; font-size: 10px; letter-spacing: 1px; }
 .credits-content p  { color: #ccc; }
 
-/* ─── WORLD SCREEN ──────────────────── */
 #world-container {
   width: 100%; height: 100%;
   position: relative;
@@ -345,7 +332,6 @@ kbd {
   padding: 1px 6px;
 }
 
-/* ─── DIALOGUE SCREEN (Undertale) ────── */
 #screen-dialogue {
   background: transparent;
   pointer-events: all;
@@ -358,7 +344,6 @@ kbd {
   pointer-events: none;
 }
 
-/* Undertale dialogue: full-width box at bottom, black bg, white border */
 #dialogue-box {
   position: absolute;
   bottom: 0;
@@ -417,7 +402,6 @@ kbd {
   gap: 6px;
 }
 
-/* Undertale: yellow name text */
 #dialogue-speaker {
   font-family: var(--pixel);
   font-size: 13px;
@@ -426,7 +410,6 @@ kbd {
   letter-spacing: 1px;
 }
 
-/* Undertale: white body text, no glow */
 #dialogue-text {
   font-family: var(--pixel);
   font-size: 14px;
@@ -456,7 +439,6 @@ kbd {
   white-space: nowrap;
 }
 
-/* ─── BATTLE SCREEN (Undertale) ─────── */
 #screen-battle {
   background: #000;
   align-items: center;
@@ -476,7 +458,6 @@ kbd {
   background: #000;
 }
 
-/* Enemy area */
 #battle-enemy-area {
   display: flex;
   flex-direction: column;
@@ -527,7 +508,6 @@ kbd {
   width: 100%;
 }
 
-/* Arena */
 #battle-arena-wrap {
   position: relative;
   display: flex;
@@ -562,7 +542,6 @@ kbd {
 }
 #battle-message.show { opacity: 1; }
 
-/* Battle UI — Undertale style bottom panel */
 #battle-ui {
   display: flex;
   flex-direction: column;
@@ -589,7 +568,6 @@ kbd {
   font-size: 10px;
 }
 
-/* Heart HP bar */
 #battle-hp-outer {
   flex: 1;
   height: 12px;
@@ -603,7 +581,6 @@ kbd {
   transition: width 0.3s ease, background 0.3s;
 }
 
-/* Undertale 4 action buttons */
 #battle-actions {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -675,7 +652,6 @@ kbd {
   line-height: 1.5;
 }
 
-/* ─── GAME OVER (Undertale style) ───── */
 #screen-gameover {
   background: #000;
 }
@@ -703,7 +679,6 @@ kbd {
   white-space: pre-wrap;
 }
 
-/* ─── VICTORY ───────────────────────── */
 #screen-victory {
   background: #000;
 }
@@ -730,7 +705,6 @@ kbd {
   white-space: pre-wrap;
 }
 
-/* ─── Damage Flash ──────────────────── */
 .damage-flash {
   animation: damage-anim 0.2s steps(2) infinite;
 }
@@ -739,12 +713,10 @@ kbd {
   100% { filter: invert(0); }
 }
 
-/* ─── Scrollbar ─────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: #fff; }
 
-/* ─── Responsive ────────────────────── */
 @media (max-width: 600px) {
   .title-main { font-size: 28px; }
   .title-sub  { font-size: 10px; }
@@ -755,7 +727,6 @@ kbd {
   .battle-btn { font-size: 8px; }
 }
 
-/* ─── Interaction hint overlay ──────── */
 #interact-hint-overlay {
   position: absolute;
   font-family: var(--pixel);

@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- ══ TÍTULO ══════════════════════════════════════════════ -->
 <div id="screen-title" class="screen active">
   <div class="title-bg">
     <div class="scanlines"></div>
@@ -32,7 +31,6 @@
   </div>
 </div>
 
-<!-- ══ CONTROLES ═══════════════════════════════════════════ -->
 <div id="screen-controls" class="screen">
   <div class="panel-window">
     <div class="panel-title">CONFIGURAR CONTROLES</div>
@@ -42,7 +40,6 @@
   </div>
 </div>
 
-<!-- ══ CRÉDITOS ════════════════════════════════════════════ -->
 <div id="screen-credits" class="screen">
   <div class="panel-window">
     <div class="panel-title">CREDITOS</div>
@@ -70,11 +67,9 @@
   </div>
 </div>
 
-<!-- ══ OVERWORLD ═══════════════════════════════════════════ -->
 <div id="screen-world" class="screen">
   <div id="world-container">
     <canvas id="world-canvas"></canvas>
-    <!-- HUD Undertale-style -->
     <div id="hud">
       <div id="hud-left">
         <span id="hud-area">* Terminal de Acceso</span>
@@ -84,11 +79,9 @@
         <span id="hud-score">💾 <span id="hud-score-val">0</span> pts</span>
       </div>
     </div>
-    <!-- Control hint -->
     <div id="hud-progress-bar">
       <span id="prog-hint">Flechas: mover · Z: interactuar · Acercate a NPCs y terminales</span>
     </div>
-    <!-- Minimap -->
     <div id="minimap-wrap">
       <div id="minimap-label">MAPA</div>
       <canvas id="minimap" width="80" height="60"></canvas>
@@ -96,7 +89,6 @@
   </div>
 </div>
 
-<!-- ══ DIÁLOGO (Undertale style) ════════════════════════════ -->
 <div id="screen-dialogue" class="screen">
   <div id="world-bg-blur"></div>
   <div id="dialogue-box">
@@ -113,11 +105,9 @@
   <div id="dialogue-hint">[ Z / Espacio / Enter para continuar ]</div>
 </div>
 
-<!-- ══ BATALLA ═════════════════════════════════════════════ -->
 <div id="screen-battle" class="screen">
   <div id="battle-wrapper">
 
-    <!-- Enemy -->
     <div id="battle-enemy-area">
       <div id="battle-enemy-sprite"></div>
       <div id="battle-enemy-name-hp">
@@ -128,13 +118,11 @@
       </div>
     </div>
 
-    <!-- Arena (heart dodging area) -->
     <div id="battle-arena-wrap">
       <canvas id="battle-arena"></canvas>
       <div id="battle-message"></div>
     </div>
 
-    <!-- UI Panel — Undertale bottom panel -->
     <div id="battle-ui">
       <div id="battle-stats">
         <span>❤ <span id="b-hp-val">100</span>/<span id="b-hp-max">100</span></span>
@@ -161,7 +149,6 @@
   </div>
 </div>
 
-<!-- ══ GAME OVER ═══════════════════════════════════════════ -->
 <div id="screen-gameover" class="screen">
   <div class="gameover-content">
     <div class="gameover-title">GAME OVER</div>
@@ -172,7 +159,6 @@
   </div>
 </div>
 
-<!-- ══ VICTORIA ════════════════════════════════════════════ -->
 <div id="screen-victory" class="screen">
   <div class="victory-content">
     <div class="victory-title">VICTORIA</div>
@@ -182,7 +168,6 @@
   </div>
 </div>
 
-<!-- Scripts -->
 <script src="js/audio.js"></script>
 <script src="js/config.js"></script>
 <script src="js/controls.js"></script>

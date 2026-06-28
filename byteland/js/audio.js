@@ -1,28 +1,18 @@
-/**
- * BYTELAND Audio Engine — Estilo Undertale
- * Síntesis procedural con Web Audio API
- * Sin archivos externos — todo generado en tiempo real
- */
-
 window.Audio = (function () {
   let ctx = null;
   let masterGain = null;
   let musicGain = null;
   let sfxGain = null;
 
-  // Volúmenes
   let musicVolume = 0.45;
   let sfxVolume = 0.6;
 
-  // BGM en curso
   let currentBGM = null;
   let bgmNodes = [];
   let bgmLoopRef = null;
   let fadingOut = false;
 
-  // ────────────────────────────────────────────────
-  // INIT
-  // ────────────────────────────────────────────────
+
   function init() {
     if (ctx) return;
     ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -46,8 +36,6 @@ window.Audio = (function () {
   function _resume() {
     if (ctx && ctx.state === "suspended") {
       ctx.resume().then(() => {
-        // Las notas programadas mientras el ctx estaba suspendido ya expiraron.
-        // Hay que relanzar la BGM actual para que suene de verdad.
         if (currentBGM && !fadingOut) {
           const name = currentBGM;
           _stopBGMNodes();
@@ -65,9 +53,6 @@ window.Audio = (function () {
     _resume();
   }
 
-  // ────────────────────────────────────────────────
-  // UTILIDADES DE SÍNTESIS
-  // ────────────────────────────────────────────────
   function _osc(type, freq, startTime, duration, vol, dest, detune) {
     const g = ctx.createGain();
     g.gain.setValueAtTime(vol, startTime);
@@ -109,18 +94,12 @@ window.Audio = (function () {
     return src;
   }
 
-  // Arpeggio rápido estilo chiptune (como Undertale SAVE)
   function _arp(freqs, startTime, noteLen, vol, dest, type) {
     freqs.forEach((f, i) => {
       _osc(type || "square", f, startTime + i * noteLen, noteLen * 0.85, vol, dest);
     });
   }
 
-  // ────────────────────────────────────────────────
-  // SFX — DIÁLOGO / UI
-  // ────────────────────────────────────────────────
-
-  // Sonido de letra al aparecer (diferente por personaje)
   const charVoices = {
     victor:  { freq: 440, type: "square",   vol: 0.08, dur: 0.04 },
     fabian:  { freq: 340, type: "triangle", vol: 0.09, dur: 0.05 },
@@ -129,22 +108,19 @@ window.Audio = (function () {
     default: { freq: 380, type: "square",   vol: 0.07, dur: 0.04 }
   };
 
-  // Throttle para no saturar el audio con cada letra
   let lastCharSoundTime = 0;
   function playChar(speaker) {
     _ensure();
     const now = ctx.currentTime;
-    if (now - lastCharSoundTime < 0.05) return; // máximo 20 sonidos/seg
+    if (now - lastCharSoundTime < 0.05) return;
     lastCharSoundTime = now;
 
     const key = speaker ? speaker.toLowerCase() : "default";
     const v = charVoices[key] || charVoices.default;
-    // Pequeña variación de tono para naturalidad
     const detune = (Math.random() - 0.5) * 60;
     _osc(v.type, v.freq, now, v.dur, v.vol, sfxGain, detune);
   }
 
-  // Confirmar / avanzar diálogo
   function playConfirm() {
     _ensure();
     const t = ctx.currentTime;
@@ -152,7 +128,6 @@ window.Audio = (function () {
     _osc("square", 784, t + 0.06, 0.10, 0.12, sfxGain);
   }
 
-  // Cancelar / volver
   function playCancel() {
     _ensure();
     const t = ctx.currentTime;
@@ -160,20 +135,17 @@ window.Audio = (function () {
     _osc("square", 294, t + 0.06, 0.10, 0.10, sfxGain);
   }
 
-  // Cursor moviéndose en menú
   function playMenuMove() {
     _ensure();
     _osc("square", 440, ctx.currentTime, 0.04, 0.08, sfxGain, 0);
   }
 
-  // Abrir menú / submenu
   function playMenuOpen() {
     _ensure();
     const t = ctx.currentTime;
     _arp([330, 440, 523], t, 0.05, 0.12, sfxGain, "square");
   }
 
-  // Error / acción inválida
   function playError() {
     _ensure();
     const t = ctx.currentTime;
@@ -181,14 +153,12 @@ window.Audio = (function () {
     _osc("sawtooth", 130, t + 0.10, 0.12, 0.12, sfxGain);
   }
 
-  // Recoger ítem
   function playItem() {
     _ensure();
     const t = ctx.currentTime;
     _arp([523, 659, 784, 1047], t, 0.07, 0.15, sfxGain, "square");
   }
 
-  // Curar HP (antivirus / parche)
   function playHeal() {
     _ensure();
     const t = ctx.currentTime;
@@ -199,7 +169,6 @@ window.Audio = (function () {
     }, 350);
   }
 
-  // Movimiento del jugador en el mapa
   let stepToggle = false;
   function playStep() {
     _ensure();
@@ -209,7 +178,6 @@ window.Audio = (function () {
     _osc("square", freq, ctx.currentTime, 0.04, 0.04, sfxGain);
   }
 
-  // Interactuar con terminal / signo
   function playTerminal() {
     _ensure();
     const t = ctx.currentTime;
@@ -217,7 +185,6 @@ window.Audio = (function () {
     _osc("square", 440, t + 0.03, 0.05, 0.10, sfxGain);
   }
 
-  // Leer letrero / signo
   function playSign() {
     _ensure();
     const t = ctx.currentTime;
@@ -225,7 +192,6 @@ window.Audio = (function () {
     _osc("triangle", 880, t + 0.05, 0.08, 0.08, sfxGain);
   }
 
-  // Puerta bloqueada
   function playLocked() {
     _ensure();
     const t = ctx.currentTime;
@@ -234,18 +200,12 @@ window.Audio = (function () {
     _noise(t + 0.08, 0.15, 0.08, sfxGain, 400);
   }
 
-  // Transición de zona
   function playZoneTransition() {
     _ensure();
     const t = ctx.currentTime;
     _arp([262, 330, 392, 523, 659, 784], t, 0.08, 0.12, sfxGain, "square");
   }
 
-  // ────────────────────────────────────────────────
-  // SFX — BATALLA
-  // ────────────────────────────────────────────────
-
-  // Atacar (LUCHAR)
   function playAttack() {
     _ensure();
     const t = ctx.currentTime;
@@ -254,7 +214,6 @@ window.Audio = (function () {
     _osc("sawtooth", 120, t + 0.05, 0.08, 0.15, sfxGain);
   }
 
-  // Golpe al enemigo
   function playHit() {
     _ensure();
     const t = ctx.currentTime;
@@ -263,7 +222,6 @@ window.Audio = (function () {
     _osc("square", 100, t + 0.06, 0.10, 0.15, sfxGain);
   }
 
-  // Golpe crítico
   function playCritical() {
     _ensure();
     const t = ctx.currentTime;
@@ -273,7 +231,6 @@ window.Audio = (function () {
     _osc("square",   880, t + 0.08, 0.12, 0.15, sfxGain);
   }
 
-  // Recibir daño (corazón golpeado)
   function playHurt() {
     _ensure();
     const t = ctx.currentTime;
@@ -282,7 +239,6 @@ window.Audio = (function () {
     _osc("sawtooth",  80, t + 0.05, 0.13, 0.15, sfxGain);
   }
 
-  // Muerte / Game Over
   function playDeath() {
     _ensure();
     const t = ctx.currentTime;
@@ -987,3 +943,4 @@ window.Audio = (function () {
     playSave
   };
 })();
+

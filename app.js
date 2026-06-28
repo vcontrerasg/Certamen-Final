@@ -31,6 +31,38 @@ const PROYECTOS_LOCALES = [
     }
 ];
 
+// Integrantes del grupo (datos locales como fallback)
+const INTEGRANTES_LOCALES = [
+    {
+        nombre: "Víctor Ignacio Contreras Guilloux",
+        rol: "Desarrollador Frontend",
+        sobreMi: "Persona organizada y responsable, con habilidad para el estudio autodidacta y capacidad de aprendizaje rápido. Estudiante de Ingeniería en Ejecución en Informática, 2do año UCSC.",
+        habilidades: ["HTML5", "CSS3", "JavaScript", "Git", "GitHub Pages"],
+        foto: "https://i.pinimg.com/736x/95/18/c7/9518c7baecedd451cc171af7ec775a51.jpg",
+        links: {
+            github: "https://github.com/vcontrerasg",
+            linkedin: "https://linkedin.com/in/víctor-contreras-guilloux-7080352ba",
+            discord: "https://discord.com/users/v1kthor_"
+        }
+    },
+    {
+        nombre: "Fabián Gacitúa Medi",
+        rol: "Desarrollador Full Stack",
+        sobreMi: "Apasionado por la tecnología y las computadoras. Responsable, justo y con gran disposición para el trabajo en equipo y el aprendizaje continuo. Estudiante UCSC 2do año.",
+        habilidades: ["SQL", "HTML5", "CSS3", "C# Básico"],
+        foto: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNX1Q9Mth6w326YhW1aZ0plv9Qu9toF4AY4Q&s",
+        links: {}
+    },
+    {
+        nombre: "Sebastián Carrillo",
+        rol: "Desarrollador Frontend",
+        sobreMi: "Estudiante de informática en formación, interesado en el desarrollo web y las aplicaciones móviles. Experiencia en atención al cliente y trabajo bajo presión como Croupier.",
+        habilidades: ["HTML5", "VS Code", "Trabajo en equipo", "Desarrollo Frontend"],
+        foto: null,
+        links: {}
+    }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     cargarIntegrantes();
     cargarProyectos();
@@ -50,31 +82,45 @@ function toggleFullscreenGame() {
 // 1. CARGAR INTEGRANTES DESDE MONGODB
 async function cargarIntegrantes() {
     try {
-        const res = await fetch(`${API_URL}/integrantes`);
+        const res = await fetch(`${API_URL}/integrantes`, { signal: AbortSignal.timeout(3000) });
         const integrantes = await res.json();
-        renderizarIntegrantes(integrantes);
+        if (integrantes && integrantes.length > 0) {
+            renderizarIntegrantes(integrantes);
+            return;
+        }
     } catch (err) {
-        console.warn("Backend no disponible, mostrando integrantes de ejemplo.", err);
-        renderizarIntegrantes([]);
+        console.warn("Backend no disponible, usando integrantes locales.", err);
     }
+    renderizarIntegrantes(INTEGRANTES_LOCALES, true);
 }
 
-function renderizarIntegrantes(integrantes) {
+function renderizarIntegrantes(integrantes, esLocal = false) {
     const contenedor = document.getElementById('contenedor-integrantes');
     contenedor.innerHTML = '';
-    if (integrantes.length === 0) {
+    if (!integrantes || integrantes.length === 0) {
         contenedor.innerHTML = '<p style="color: var(--text-color); opacity: 0.6;">Conecta el servidor para ver los integrantes del equipo.</p>';
         return;
     }
     integrantes.forEach(i => {
+        const foto = esLocal && i.foto
+            ? `<img src="${i.foto}" alt="${i.nombre}" class="integrante-foto" onerror="this.style.display='none'">`
+            : (i.foto ? `<img src="${i.foto}" alt="${i.nombre}" class="integrante-foto" onerror="this.style.display='none'">` : '');
+
+        const links = esLocal && i.links ? Object.entries(i.links).map(([key, url]) => {
+            const iconos = { github: '🐙 GitHub', linkedin: '💼 LinkedIn', discord: '💬 Discord' };
+            return `<a href="${url}" target="_blank" class="btn-link" style="font-size:0.75rem; padding:4px 10px;">${iconos[key] || key}</a>`;
+        }).join('') : '';
+
         contenedor.innerHTML += `
             <div class="card-integrante">
+                ${foto}
                 <h3>${i.nombre}</h3>
                 <p class="rol"><strong>${i.rol}</strong></p>
                 <p>${i.sobreMi}</p>
                 <div class="tags">
-                    ${i.habilidades.map(h => `<span class="tag">${h}</span>`).join('')}
+                    ${(i.habilidades || []).map(h => `<span class="tag">${h}</span>`).join('')}
                 </div>
+                ${links ? `<div class="integrante-links">${links}</div>` : ''}
             </div>
         `;
     });

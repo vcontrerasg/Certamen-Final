@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio Grupal — UCSC</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div class="logo">UCSC<span> Grupo</span></div>
+            <ul>
+                <li><a href="#sobre-mi">Integrantes</a></li>
+                <li><a href="#proyectos">Proyectos</a></li>
+                <li><a href="#minijuego">Minijuego</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <button id="dark-mode-toggle">🌙</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="sobre-mi">
+            <h2>Sobre Nosotros</h2>
+            <div id="contenedor-integrantes" class="grid-integrantes"></div>
+        </section>
+
+        <section id="multimedia">
+            <h2>Video de Presentación</h2>
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    frameborder="0"
+                    allowfullscreen
+                    title="Video de presentación del equipo">
+                </iframe>
+            </div>
+            <div class="audio-control">
+                <p>Música de fondo:</p>
+                <button id="btn-musica">🎵 Play Música</button>
+                <audio id="musica-fondo" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+            </div>
+        </section>
+
+        <section id="proyectos">
+            <h2>Nuestros Proyectos</h2>
+            <div class="filtros">
+                <button onclick="cargarProyectos()">Todos</button>
+                <button onclick="cargarProyectos('Node.js')">Node.js</button>
+                <button onclick="cargarProyectos('React')">React</button>
+            </div>
+            <div id="contenedor-proyectos" class="grid-proyectos"></div>
+        </section>
+
+        <section id="minijuego">
+            <h2>🎮 BYTELAND — El Mundo de los Bits</h2>
+            <p>Un RPG de exploración temático de informática desarrollado por el equipo. ¡Derrota al Profesor jefe final y salva BYTELAND!</p>
+            <p style="font-size:0.82rem; color: var(--text-muted); margin-top: 4px;">
+                Controles: Flechas / WASD para moverse · Z o Enter para interactuar · Mueve el ratón en combate para esquivar
+            </p>
+            <div class="juego-box iframe-box">
+                <iframe
+                    id="byteland-iframe"
+                    src="byteland/index.html"
+                    title="BYTELAND — El Mundo de los Bits"
+                    allowfullscreen>
+                </iframe>
+                <button id="btn-fullscreen-byteland" onclick="toggleFullscreenGame()">⛶ Pantalla completa</button>
+            </div>
+        </section>
+
+        <section id="contacto">
+            <h2>Contacto</h2>
+            <div class="contacto-intro">
+                <p>¿Tienes una pregunta, propuesta o simplemente quieres saludar? Escríbenos y te respondemos a la brevedad.</p>
+                <br>
+                <p><strong>Tiempo de respuesta estimado:</strong> 24–48 horas.</p>
+            </div>
+            <form id="form-contacto">
+                <div>
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" placeholder="Tu nombre completo" required>
+                </div>
+                <div>
+                    <label for="correo">Correo Electrónico</label>
+                    <input type="email" id="correo" placeholder="correo@ejemplo.com" required>
+                </div>
+                <div>
+                    <label for="tipo">Tipo de Consulta</label>
+                    <select id="tipo" required>
+                        <option value="Sugerencia">Sugerencia</option>
+                        <option value="Trabajo">Contratación</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="mensaje">Mensaje</label>
+                    <textarea id="mensaje" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                </div>
+                <button type="submit">Enviar Mensaje →</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 · Desarrollado con ☕ y muchas horas en vela · Portafolio Grupal UCSC</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

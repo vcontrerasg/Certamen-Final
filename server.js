@@ -84,6 +84,14 @@ app.post('/api/mensajes', async (req, res) => {
     catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/api/mensajes', async (req, res) => {
+    try {
+        const lista = await Mensaje.find().sort({ fecha: -1 });
+        res.json(lista);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 app.get('/api/reporte-proyectos', async (req, res) => {
     try {

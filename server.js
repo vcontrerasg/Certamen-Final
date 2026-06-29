@@ -36,8 +36,6 @@ const MensajeSchema = new mongoose.Schema({
 });
 const Mensaje = mongoose.model('Mensaje', MensajeSchema);
 
-
-
 app.post('/api/integrantes', async (req, res) => {
     try { const nuevo = new Integrante(req.body); await nuevo.save(); res.status(201).json(nuevo); } 
     catch (err) { res.status(500).json({ error: err.message }); }
@@ -46,6 +44,26 @@ app.post('/api/integrantes', async (req, res) => {
 app.get('/api/integrantes', async (req, res) => {
     const lista = await Integrante.find();
     res.json(lista);
+});
+
+app.put('/api/integrantes/:id', async (req, res) => {
+    try {
+        const actualizado = await Integrante.findByIdAndUpdate(
+            req.params.id, req.body, { new: true }
+        );
+        res.json(actualizado);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/integrantes/:id', async (req, res) => {
+    try {
+        await Integrante.findByIdAndDelete(req.params.id);
+        res.json({ mensaje: "Integrante eliminado con éxito" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.post('/api/proyectos', async (req, res) => {
@@ -57,9 +75,7 @@ app.get('/api/proyectos', async (req, res) => {
     try {
         const { tech } = req.query;
         let filtro = {};
-        
         if (tech) { filtro.tecnologias = { $in: [tech] }; }
-
         const proyectos = await Proyecto.find(filtro)
                                         .populate('autor')
                                         .sort({ titulo: 1 }); 
@@ -85,6 +101,19 @@ app.post('/api/mensajes', async (req, res) => {
 app.get('/api/mensajes', async (req, res) => {
     try {
         const lista = await Mensaje.find().sort({ fecha: -1 });
+        res.json(lista);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/mensajes/recientes', async (req, res) => {
+    try {
+        const hace7dias = new Date();
+        hace7dias.setDate(hace7dias.getDate() - 7);
+        const lista = await Mensaje.find({ 
+            fecha: { $gte: hace7dias } 
+        }).sort({ fecha: -1 });
         res.json(lista);
     } catch (err) {
         res.status(500).json({ error: err.message });

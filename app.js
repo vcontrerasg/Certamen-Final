@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://certamen-final-03jo.onrender.com';
 
 const PROYECTOS_LOCALES = [
     {

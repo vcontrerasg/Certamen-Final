@@ -94,4 +94,4 @@ app.get('/api/reporte-proyectos', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.listen(3000, () => console.log('Servidor Backend corriendo en http://localhost:3000'));
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

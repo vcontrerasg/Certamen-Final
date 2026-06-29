@@ -6,11 +6,9 @@ const app = express();
 app.use(express.json());
 app.use(cors()); 
 
-mongoose.connect('mongodb+srv://vcontrerasg:12345@cluster0.qcjvc8l.mongodb.net/portfolio_ucsc', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log('Conectado exitosamente a MongoDB'))
-  .catch(err => console.error('Error de conexión:', err));
+mongoose.connect('mongodb+srv://vcontrerasg:12345@cluster0.qcjvc8l.mongodb.net/portfolio_ucsc')
+    .then(() => console.log('Conectado exitosamente a MongoDB'))
+    .catch(err => console.error('Error de conexión:', err));
 
 const IntegranteSchema = new mongoose.Schema({
     nombre: String,

@@ -1,4 +1,4 @@
-const API_URL = 'https://certamen-final-03jo.onrender.com';
+const API_URL = 'https://certamen-final-03jo.onrender.com/api';
 
 const PROYECTOS_LOCALES = [
     {
